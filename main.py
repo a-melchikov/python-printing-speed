@@ -1,23 +1,37 @@
+import os
+import sys
 from tkinter import *
 import time
+from get_words_file import get_words_from_file
 
 
 def end():
     global end_time
+
     end_time = time.time()
     elapsed_time = end_time - start_time
 
-    accuracy = (((len(TEXT) - len(mismatches)) / len(TEXT)) * 100)
     error_count = len(mismatches)
     total_chars = len(TEXT)
-    speed = len(TEXT) * (60 / elapsed_time)
+    accuracy = ((total_chars - error_count) / total_chars) * 100
+    speed = 60 * len(TEXT) / elapsed_time
 
-    print(f"Аккуратность: {accuracy:.2f}%")
-    print(f"Ошибок {error_count} из {total_chars} символов")
-    print(f"Заняло времени {elapsed_time:.2f} сек.")
-    print(f"Скорость {speed:.2f} символов в минуту")
+    result_text = (
+        f"Аккуратность: {accuracy:.2f}%\n"
+        f"Ошибок: {error_count} из {total_chars} символов\n"
+        f"Заняло времени: {elapsed_time:.2f} сек.\n"
+        f"Скорость: {speed:.2f} символов в минуту"
+    )
 
-    root.destroy()
+    show_result(result_text)
+
+
+def show_result(result_text):
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    result_label = Label(root, text=result_text, font=("Helvetica", 14))
+    result_label.pack(expand=True)
 
 
 def on_key_press(event):
@@ -55,26 +69,37 @@ def on_key_release(event):
         end()
 
 
-TEXT = "hello world"
+def restart():
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
+
+
+def on_ctrl_r(event):
+    restart()
+
+
+TEXT = get_words_from_file("eng_words.txt", 5)
 
 root = Tk()
 root.title("Typing speed")
-root.geometry("400x200")
+root.geometry("600x400")
 
 start_time = None
 end_time = None
 mismatches = set()
 
-display_widget = Text(root, height=1, wrap="none", font=("Helvetica", 18))
-display_widget.insert("1.0", TEXT)
-display_widget.configure(state=DISABLED)
-display_widget.pack(anchor="nw")
+root.bind("<Control-r>", on_ctrl_r)
 
-text_widget = Text(root, font=("Helvetica", 18))
+text_widget = Text(root, height=1, font=("Helvetica", 18, "bold"))
 text_widget.pack(expand=True)
 text_widget.bind("<KeyPress>", on_key_press)
 text_widget.bind("<KeyRelease>", on_key_release)
 
 text_widget.tag_configure("mistake", underline=True, foreground="red")
+
+display_widget = Text(root, wrap="word", font=("Helvetica", 18, "bold"))
+display_widget.insert("1.0", TEXT)
+display_widget.configure(state=DISABLED)
+display_widget.pack(anchor="nw", pady=10)
 
 root.mainloop()
