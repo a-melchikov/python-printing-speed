@@ -1,7 +1,9 @@
+import datetime
 import os
 import sys
 import time
 from tkinter import *
+from tkinter.ttk import Treeview
 from get_words_file import get_words_from_file, split_line
 
 
@@ -11,7 +13,10 @@ class TypingSpeedTest:
         self.root.title("Тест скорости печати")
         self.root.geometry("600x400")
 
-        self.text = self.get_text(15)
+        self.COUNT_WORD = 5
+        self.MAX_LEN_LINE = 15
+
+        self.text = self.get_text(self.COUNT_WORD, self.MAX_LEN_LINE)
         self.text_split = self.split_text(self.text)
         self.start_time = None
         self.end_time = None
@@ -23,6 +28,7 @@ class TypingSpeedTest:
 
         self.setup_ui()
         self.root.bind("<Control-r>", self.restart)
+        self.root.bind("<Control-h>", self.history)
 
     @staticmethod
     def get_text(count_word=10, max_len_line=45):
@@ -59,22 +65,22 @@ class TypingSpeedTest:
             return "break"
 
         text = self.text_widget.get("1.0", END)[:-1]
-        idx = len(text) - 1
 
         if text == self.text_split[self.idx_line - 1]:
             self.display_widget.configure(state=NORMAL)
-            self.display_widget.delete(f"{self.idx_line}.0", f"{self.idx_line + 1}.0")
+            self.display_widget.delete("1.0", "2.0")
             self.display_widget.configure(state=DISABLED)
             self.text_widget.delete("1.0", END)
             self.idx_line += 1
 
-        if text == "":
+        if text == "" and self.idx_line == 1:
             self.start_time = None
             self.mismatches.clear()
             self.text_widget.tag_remove("mistake", "1.0", END)
         elif self.idx_line == len(self.text_split) + 1:
             self.end()
 
+        idx = len(text) - 1
         if self.idx_line < len(self.text_split) + 1 and 0 <= idx < len(self.text_split[self.idx_line - 1]):
             if text[idx] != self.text_split[self.idx_line - 1][idx]:
                 self.mismatches.add(idx)
@@ -98,6 +104,10 @@ class TypingSpeedTest:
             f"Скорость: {speed:.2f} символов в минуту"
         )
 
+        with open("history.txt", "a", encoding="utf-8") as f:
+            f.write(f"{self.COUNT_WORD} {error_count}/{total_chars} {accuracy:.2f} {elapsed_time:.2f}"
+                    f" {speed:.2f} {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n")
+
         self.show_result(result_text)
 
     def show_result(self, result_text):
@@ -110,6 +120,41 @@ class TypingSpeedTest:
     def restart(self, event=None):
         python = sys.executable
         os.execl(python, python, *sys.argv)
+
+    def history(self, event=None):
+        history_window = Toplevel(self.root)
+        history_window.title("История тестов")
+        history_window.geometry("900x200")  # Установите желаемый размер окна
+
+        tree = Treeview(history_window)
+        tree["columns"] = ("Count Word", "Errors", "Accuracy", "Time", "Speed", "Date", "Date(h:m:s)")
+        tree.heading("#0", text="ID")
+        tree.heading("Count Word", text="Кол-во слов")
+        tree.heading("Errors", text="Ошибки/Символы")
+        tree.heading("Accuracy", text="Аккуратность %")
+        tree.heading("Time", text="Время сек.")
+        tree.heading("Speed", text="Скорость сим./мин.")
+        tree.heading("Date", text="Дата")
+        tree.heading("Date(h:m:s)", text="Дата (ч:м:с)")
+
+        tree.column("#0", width=30)
+        tree.column("Count Word", width=90)
+        tree.column("Errors", width=130)
+        tree.column("Accuracy", width=110)
+        tree.column("Time", width=80)
+        tree.column("Speed", width=130)
+        tree.column("Date", width=110)
+        tree.column("Date(h:m:s)", width=110)
+
+        with open("history.txt", "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            lines.reverse()
+
+        for idx, line in enumerate(lines, start=1):
+            data = line.split()
+            tree.insert("", "end", text=str(idx), values=data)
+
+        tree.pack(expand=True, fill="both")
 
 
 if __name__ == "__main__":
