@@ -2,7 +2,7 @@ import os
 import sys
 from tkinter import *
 import time
-from get_words_file import get_words_from_file
+from get_words_file import get_words_from_file, split_line
 
 
 def end():
@@ -47,26 +47,36 @@ def on_key_press(event):
 def on_key_release(event):
     global start_time
     global mismatches
+    global idx_line
 
     if event.keysym == "Return":
         return "break"
 
-    text = text_widget.get("1.0", END).strip()
-    idx = len(text) - 1
+    text = text_widget.get(f"1.0", END)[:-1]
 
-    if 0 <= idx < len(TEXT):
-        if text[idx] != TEXT[idx]:
-            mismatches.add(idx)
-            text_widget.tag_add("mistake", f"1.{idx}", f"1.{idx+1}")
-        else:
-            text_widget.tag_remove("mistake", f"1.{idx}", f"1.{idx+1}")
+    idx = len(text) - 1
+    print(idx_line, len(TEXT_SPLIT))
+    if text == TEXT_SPLIT[idx_line - 1]:
+        display_widget.configure(state=NORMAL)
+        display_widget.delete(f"{idx_line}.0", f"{idx_line + 1}.0")
+        display_widget.configure(state=DISABLED)
+        text_widget.delete("1.0", END)
+        idx_line += 1
 
     if text == "":
         start_time = None
         mismatches.clear()
         text_widget.tag_remove("mistake", "1.0", END)
-    elif text == TEXT:
+    elif idx_line == len(TEXT_SPLIT) + 1:
         end()
+
+    if idx_line < len(TEXT_SPLIT) + 1 and 0 <= idx < len(TEXT_SPLIT[idx_line - 1]):
+        if text[idx] != TEXT_SPLIT[idx_line - 1][idx]:
+            mismatches.add(idx)
+            text_widget.tag_add("mistake", f"1.{idx}", f"1.{idx+1}")
+        else:
+            text_widget.tag_remove("mistake", f"1.{idx}", f"1.{idx+1}")
+
 
 
 def restart():
@@ -78,7 +88,10 @@ def on_ctrl_r(event):
     restart()
 
 
-TEXT = get_words_from_file("eng_words.txt", 5)
+words = get_words_from_file("eng_words.txt", 10)
+TEXT = split_line(words)
+TEXT_SPLIT = [x + " " for x in TEXT.split('\n')]
+TEXT_SPLIT[-1] = TEXT_SPLIT[-1][:-1]
 
 root = Tk()
 root.title("Typing speed")
@@ -87,6 +100,7 @@ root.geometry("600x400")
 start_time = None
 end_time = None
 mismatches = set()
+idx_line = 1
 
 root.bind("<Control-r>", on_ctrl_r)
 
