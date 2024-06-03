@@ -13,7 +13,7 @@ class TypingTestLogic:
 		text = ui.text_widget.get("1.0", "end-1c")
 
 		if text == self.text_split[self.idx_line - 1]:
-			ui.update_display_widget()
+			ui.update_display_widget(text)
 			ui.clear_text_widget()
 			self.idx_line += 1
 

@@ -1,5 +1,3 @@
-import os
-import sys
 import time
 from tkinter import *
 from file_utils import FileUtils
@@ -25,8 +23,9 @@ class TypingSpeedTest:
 		self.ui = TypingTestUI(self.root, self.text, self.on_key_press, self.on_key_release)
 		self.history_manager = HistoryManager()
 
-		self.root.bind("<Control-r>", self.restart)
 		self.root.bind("<Control-h>", self.show_history)
+		self.root.bind("<Control-r>", self.update_text)
+		self.root.bind("<Control-z>", self.exit_app)
 
 	def on_key_press(self, event):
 		if self.logic.start_time is None:
@@ -52,12 +51,23 @@ class TypingSpeedTest:
 		self.history_manager.save_result(self.COUNT_WORD, error_count, total_chars, accuracy, elapsed_time, speed)
 		self.ui.show_result(result_text)
 
-	def restart(self, event=None):
-		python = sys.executable
-		os.execl(python, python, *sys.argv)
+	def reset_ui(self):
+		for widget in self.root.winfo_children():
+			widget.destroy()
+		self.ui = TypingTestUI(self.root, self.text, self.on_key_press, self.on_key_release)
+
+	def update_text(self, event=None):
+		self.text = self.file.get_text(self.COUNT_WORD, self.MAX_LEN_LINE)
+		self.text_split = self.file.split_text(self.text)
+		self.logic = TypingTestLogic(self.text_split)
+		self.reset_ui()
+		self.ui.update_display_widget(self.text)
 
 	def show_history(self, event=None):
 		self.ui.show_history_window(self.history_manager)
+
+	def exit_app(self, event=None):
+		self.root.quit()
 
 
 if __name__ == "__main__":

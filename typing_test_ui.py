@@ -13,8 +13,8 @@ class TypingTestUI:
 		self.text_widget.tag_configure("mistake", underline=True, foreground="red")
 		self.display_widget = self.ui_components.create_display_widget(self.text)
 
-	def update_display_widget(self):
-		UIComponents.update_display_widget(self.display_widget)
+	def update_display_widget(self, text):
+		UIComponents.update_display_widget(self.display_widget, text)
 
 	def clear_text_widget(self):
 		UIComponents.clear_widget(self.text_widget)

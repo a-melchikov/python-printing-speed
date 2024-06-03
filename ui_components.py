@@ -52,9 +52,10 @@ class UIComponents:
 		return display_widget
 
 	@staticmethod
-	def update_display_widget(display_widget):
+	def update_display_widget(display_widget, text):
 		display_widget.configure(state=NORMAL)
-		display_widget.delete("1.0", "2.0")
+		display_widget.delete("1.0", END)
+		display_widget.insert("1.0", text)
 		display_widget.configure(state=DISABLED)
 
 	@staticmethod
