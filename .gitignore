@@ -166,4 +166,4 @@ avatars
 .idea
 .env.prod
 staticfiles
-history.txt
+data/history.txt
