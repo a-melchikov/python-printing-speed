@@ -12,7 +12,7 @@ class TypingSpeedTest:
 	def __init__(self, root, count_word: int = 10, max_len_line: int = 20):
 		self.root = root
 		self.root.title("Тест скорости печати")
-		self.root.geometry("600x400")
+		self.root.geometry("800x600")
 
 		self.COUNT_WORD = count_word
 		self.MAX_LEN_LINE = max_len_line
@@ -62,5 +62,5 @@ class TypingSpeedTest:
 
 if __name__ == "__main__":
 	root = Tk()
-	TypingSpeedTest(root, 7, 15)
+	TypingSpeedTest(root, 5, 45)
 	root.mainloop()

@@ -7,7 +7,7 @@ class TypingTestUI:
 	def __init__(self, root, text, on_key_press, on_key_release):
 		self.root = root
 		self.text = text
-		self.font = ("Helvetica", 18, "bold")
+		self.font = ("Helvetica", 22, "bold")
 		self.ui_components = UIComponents(self.root, self.font, on_key_press, on_key_release)
 		self.text_widget = self.ui_components.create_text_widget()
 		self.text_widget.tag_configure("mistake", underline=True, foreground="red")
