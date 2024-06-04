@@ -20,7 +20,7 @@ basicConfig(level=DEBUG, format=FORMAT, handlers=[file_handler, console])
 class TypingSpeedTest:
 	SETTINGS_FILE = "data/settings.json"
 
-	def __init__(self, root, count_word: int = 10, max_len_line: int = 20, language: str = "eng"):
+	def __init__(self, root, count_word: int = 10, max_len_line: int = 20, language: str = "eng", frequency: int = 100):
 		self.root = root
 		self.root.title("Тест скорости печати")
 		self.root.geometry("800x600")
@@ -31,8 +31,9 @@ class TypingSpeedTest:
 			self.COUNT_WORD = count_word
 			self.MAX_LEN_LINE = max_len_line
 			self.LANGUAGE = language
+			self.FREQUENCY_TOP = frequency
 
-		self.file = FileUtils(f"data/{self.LANGUAGE}_words.txt")
+		self.file = FileUtils(f"data/{self.LANGUAGE}/{self.LANGUAGE}{self.FREQUENCY_TOP}.txt")
 		self.text = self.file.get_text(self.COUNT_WORD, self.MAX_LEN_LINE)
 		self.text_split = self.file.split_text(self.text)
 
@@ -45,8 +46,8 @@ class TypingSpeedTest:
 		self.root.bind("<Control-z>", self.exit_app)
 		self.root.bind("<Control-s>", self.show_settings)
 		logger.info(f"Параметры приложения: \nфайл с настройками - {os.path.abspath(self.SETTINGS_FILE)}\n"
-					 f"файл со словами - {os.path.abspath(self.file.filename)}\n"
-					 f"файл с логами - {file_handler.baseFilename}")
+					f"файл со словами - {os.path.abspath(self.file.filename)}\n"
+					f"файл с логами - {file_handler.baseFilename}")
 		logger.info("Создано окно приложения")
 
 	def on_key_press(self, event):
@@ -86,7 +87,7 @@ class TypingSpeedTest:
 
 	def update_text(self, event=None):
 		logger.info(f"Обновление текста с параметрами кол-во слов: {self.COUNT_WORD}, "
-					f"макс. длина строки: {self.MAX_LEN_LINE}, язык: {self.LANGUAGE}")
+					f"макс. длина строки: {self.MAX_LEN_LINE}, язык: {self.LANGUAGE}{self.FREQUENCY_TOP}")
 		self.text = self.file.get_text(self.COUNT_WORD, self.MAX_LEN_LINE)
 		self.text_split = self.file.split_text(self.text)
 		self.logic = TypingTestLogic(self.text_split)
@@ -121,7 +122,8 @@ class TypingSpeedTest:
 		max_len_line_entry = Entry(settings_frame, font=self.ui.font)
 		max_len_line_entry.insert(0, self.MAX_LEN_LINE)
 		max_len_line_entry.pack(pady=5)
-		logger.info(f"Показано окно с изменением максимального количества символов в строке, сейчас ({self.MAX_LEN_LINE})")
+		logger.info(
+			f"Показано окно с изменением максимального количества символов в строке, сейчас ({self.MAX_LEN_LINE})")
 
 		language_label = Label(settings_frame, text="Язык (eng/rus):", font=self.ui.font)
 		language_label.pack(pady=5)
@@ -130,9 +132,18 @@ class TypingSpeedTest:
 		language_entry.pack(pady=5)
 		logger.info(f"Показано окно с изменением языка, сейчас ({self.LANGUAGE})")
 
+		frequency_label = Label(settings_frame, text="Топ частотности (100, 250, 500, 1000, 2500, 5000):",
+								font=self.ui.font)
+		frequency_label.pack(pady=5)
+		frequency_entry = Entry(settings_frame, font=self.ui.font)
+		frequency_entry.insert(0, self.FREQUENCY_TOP)
+		frequency_entry.pack(pady=5)
+		logger.info(f"Показано окно с изменением топ частоты, сейчас ({self.FREQUENCY_TOP})")
+
 		save_button = Button(settings_frame, text="Сохранить",
 							 command=lambda: self.save_settings(count_word_entry.get(), max_len_line_entry.get(),
-																language_entry.get()), font=self.ui.font)
+																language_entry.get(), frequency_entry.get()),
+							 font=self.ui.font)
 		save_button.pack(pady=20)
 		logger.debug("Показана кнопка сохранить")
 
@@ -140,20 +151,23 @@ class TypingSpeedTest:
 		back_button.pack(pady=5)
 		logger.debug("Показана кнопка назад")
 
-	def save_settings(self, count_word, max_len_line, language):
+	def save_settings(self, count_word, max_len_line, language, frequency):
 		logger.info("Сохранение новых настроек")
 		self.COUNT_WORD = int(count_word)
 		self.MAX_LEN_LINE = int(max_len_line)
 		self.LANGUAGE = language
+		self.FREQUENCY_TOP = frequency
 		settings = {
 			"COUNT_WORD": self.COUNT_WORD,
 			"MAX_LEN_LINE": self.MAX_LEN_LINE,
-			"LANGUAGE": self.LANGUAGE
+			"LANGUAGE": self.LANGUAGE,
+			"FREQUENCY_TOP": self.FREQUENCY_TOP,
 		}
 		logger.info(f"Новые настройки: {settings}")
 		with open(self.SETTINGS_FILE, "w") as file:
 			json.dump(settings, file)
 		logger.info(f"Настройки успешно сохранены в файл: {os.path.abspath(self.SETTINGS_FILE)}")
+		self.file = FileUtils(f"data/{self.LANGUAGE}/{self.LANGUAGE}{self.FREQUENCY_TOP}.txt")
 		self.update_text()
 		logger.info("Настройки успешно сохранены")
 
@@ -168,6 +182,7 @@ class TypingSpeedTest:
 				self.COUNT_WORD = settings.get("COUNT_WORD", 10)
 				self.MAX_LEN_LINE = settings.get("MAX_LEN_LINE", 20)
 				self.LANGUAGE = settings.get("LANGUAGE", "eng")
+				self.FREQUENCY_TOP = settings.get("FREQUENCY_TOP", "100")
 		logger.info("Настройки приложения успешно загружены")
 
 
