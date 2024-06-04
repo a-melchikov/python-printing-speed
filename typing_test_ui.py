@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter.ttk import Treeview
 from ui_components import UIComponents
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 class TypingTestUI:
@@ -12,6 +15,7 @@ class TypingTestUI:
 		self.text_widget = self.ui_components.create_text_widget()
 		self.text_widget.tag_configure("mistake", underline=True, foreground="red")
 		self.display_widget = self.ui_components.create_display_widget(self.text)
+		logger.info(f"Создан экземпляр {__class__.__name__}")
 
 	def update_display_widget(self, text):
 		UIComponents.update_display_widget(self.display_widget, text)
@@ -20,12 +24,15 @@ class TypingTestUI:
 		UIComponents.clear_widget(self.text_widget)
 
 	def show_result(self, result_text):
+		logger.info("Вывод результата теста на экран")
 		for widget in self.root.winfo_children():
 			widget.destroy()
 		result_label = Label(self.root, text=result_text, font=self.font)
 		result_label.pack(expand=True)
+		logger.debug(f"Был выведен текст на экран: {result_text}")
 
 	def show_history_window(self, history_manager):
+		logger.info("Открытие окна с историей тестов")
 		history_window = Toplevel(self.root)
 		history_window.title("История тестов")
 		history_window.geometry("900x400")
@@ -55,3 +62,4 @@ class TypingTestUI:
 			tree.insert("", "end", text=str(idx), values=data)
 
 		tree.pack(expand=True, fill="both")
+		logger.info("Окно с историей тестов было успешно открыто")
