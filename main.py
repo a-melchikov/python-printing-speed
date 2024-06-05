@@ -153,6 +153,13 @@ class TypingSpeedTest:
 
 	def save_settings(self, count_word, max_len_line, language, frequency):
 		logger.info("Сохранение новых настроек")
+		old_settings = {
+			"COUNT_WORD": self.COUNT_WORD,
+			"MAX_LEN_LINE": self.MAX_LEN_LINE,
+			"LANGUAGE": self.LANGUAGE,
+			"FREQUENCY_TOP": self.FREQUENCY_TOP,
+		}
+
 		self.COUNT_WORD = int(count_word)
 		self.MAX_LEN_LINE = int(max_len_line)
 		self.LANGUAGE = language
@@ -164,12 +171,22 @@ class TypingSpeedTest:
 			"FREQUENCY_TOP": self.FREQUENCY_TOP,
 		}
 		logger.info(f"Новые настройки: {settings}")
-		with open(self.SETTINGS_FILE, "w") as file:
-			json.dump(settings, file)
-		logger.info(f"Настройки успешно сохранены в файл: {os.path.abspath(self.SETTINGS_FILE)}")
-		self.file = FileUtils(f"data/{self.LANGUAGE}/{self.LANGUAGE}{self.FREQUENCY_TOP}.txt")
-		self.update_text()
-		logger.info("Настройки успешно сохранены")
+
+		try:
+			self.file = FileUtils(f"data/{self.LANGUAGE}/{self.LANGUAGE}{self.FREQUENCY_TOP}.txt")
+			self.update_text()
+			with open(self.SETTINGS_FILE, "w") as file:
+				json.dump(settings, file)
+			logger.info(f"Настройки успешно сохранены в файл: {os.path.abspath(self.SETTINGS_FILE)}")
+		except FileNotFoundError:
+			logger.error("Файл для новых настроек не найден, настройки не были сохранены")
+			self.COUNT_WORD = old_settings["COUNT_WORD"]
+			self.MAX_LEN_LINE = old_settings["MAX_LEN_LINE"]
+			self.LANGUAGE = old_settings["LANGUAGE"]
+			self.FREQUENCY_TOP = old_settings["FREQUENCY_TOP"]
+			self.reset_ui()
+			self.ui.show_error_message("Файл для новых настроек не найден.\nНастройки не были сохранены.")
+			logger.info("Настройки восстановлены к предыдущим значениям")
 
 	def load_settings(self):
 		logger.info("Загрузка настроек приложения")

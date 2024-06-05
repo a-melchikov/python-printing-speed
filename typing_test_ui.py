@@ -63,3 +63,21 @@ class TypingTestUI:
 
 		tree.pack(expand=True, fill="both")
 		logger.info("Окно с историей тестов было успешно открыто")
+
+	def reset_ui(self):
+		logger.info("Возврат в главное окно с тестом")
+		for widget in self.root.winfo_children():
+			widget.destroy()
+		self.ui_components.create_text_widget()
+		self.ui_components.create_display_widget(self.text)
+		logger.info("Успешно вернулись в главное окно")
+
+	def show_error_message(self, message):
+		logger.info("Вывод сообщения об ошибке")
+		for widget in self.root.winfo_children():
+			widget.destroy()
+		error_label = Label(self.root, text=message, font=self.font)
+		error_label.pack(expand=True)
+		back_button = Button(self.root, text="Назад", command=self.reset_ui, font=self.font)
+		back_button.pack(pady=5)
+		logger.debug(f"Было выведено сообщение об ошибке: {message}")
