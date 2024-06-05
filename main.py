@@ -74,7 +74,8 @@ class TypingSpeedTest:
 			f"Скорость: {speed:.2f} символов в минуту"
 		)
 
-		self.history_manager.save_result(self.COUNT_WORD, error_count, total_chars, accuracy, elapsed_time, speed)
+		self.history_manager.save_result(self.COUNT_WORD, self.LANGUAGE, self.FREQUENCY_TOP, error_count, total_chars,
+										 accuracy, elapsed_time, speed)
 		self.ui.show_result(result_text)
 		logger.info("Показан результат")
 

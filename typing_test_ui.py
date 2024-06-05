@@ -38,9 +38,9 @@ class TypingTestUI:
 		history_window.geometry("900x400")
 
 		tree = Treeview(history_window)
-		tree["columns"] = ("Count Word", "Errors", "Accuracy", "Time", "Speed", "Date", "Date(h:m:s)")
+		tree["columns"] = ("Mode(Count Word)", "Errors", "Accuracy", "Time", "Speed", "Date", "Date(h:m:s)")
 		tree.heading("#0", text="ID")
-		tree.heading("Count Word", text="Кол-во слов")
+		tree.heading("Mode(Count Word)", text="Режим(Кол-во слов)")
 		tree.heading("Errors", text="Ошибки/Символы")
 		tree.heading("Accuracy", text="Аккуратность %")
 		tree.heading("Time", text="Время сек.")
@@ -49,7 +49,7 @@ class TypingTestUI:
 		tree.heading("Date(h:m:s)", text="Дата (ч:м:с)")
 
 		tree.column("#0", width=30)
-		tree.column("Count Word", width=90)
+		tree.column("Mode(Count Word)", width=120)
 		tree.column("Errors", width=130)
 		tree.column("Accuracy", width=110)
 		tree.column("Time", width=80)
