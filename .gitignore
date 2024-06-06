@@ -167,3 +167,4 @@ avatars
 .env.prod
 staticfiles
 data/history.txt
+data/data.log.*

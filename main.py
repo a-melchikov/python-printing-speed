@@ -1,6 +1,7 @@
 import os
 import json
 import time
+from logging.handlers import RotatingFileHandler
 from tkinter import *
 from file_utils import FileUtils
 from typing_test_logic import TypingTestLogic
@@ -10,8 +11,7 @@ from logging import getLogger, basicConfig, DEBUG, FileHandler, StreamHandler, E
 
 logger = getLogger()
 FORMAT = '%(asctime)s : %(name)s : %(levelname)s : %(message)s'
-file_handler = FileHandler('data/data.log')
-file_handler.setLevel(DEBUG)
+file_handler = RotatingFileHandler('data/data.log', maxBytes=5000 * 100, backupCount=3)
 console = StreamHandler()
 console.setLevel(INFO)
 basicConfig(level=DEBUG, format=FORMAT, handlers=[file_handler, console])
@@ -126,7 +126,7 @@ class TypingSpeedTest:
 		logger.info(
 			f"Показано окно с изменением максимального количества символов в строке, сейчас ({self.MAX_LEN_LINE})")
 
-		language_label = Label(settings_frame, text="Язык (eng/rus):", font=self.ui.font)
+		language_label = Label(settings_frame, text="Язык (eng/rus/other):", font=self.ui.font)
 		language_label.pack(pady=5)
 		language_entry = Entry(settings_frame, font=self.ui.font)
 		language_entry.insert(0, self.LANGUAGE)
